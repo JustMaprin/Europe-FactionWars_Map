@@ -8,30 +8,40 @@
   body {
     margin: 0;
     background: #111;
-    color: black;
     font-family: georgia;
+    overflow: hidden;
   }
 
   .controls {
     position: fixed;
     top: 10px;
     left: 10px;
-    background: rgba(204, 180, 102, 175);
+    background: rgba(204, 180, 102, 0.9);
     padding: 10px;
     border-radius: 8px;
     z-index: 10;
   }
 
+  .viewport {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    cursor: grab;
+  }
+
   .map {
-    position: relative;
-    width: 100%;
+    position: absolute;
+    transform-origin: 0 0;
   }
 
   .map img {
     position: absolute;
-    width: 100%;
     top: 0;
     left: 0;
+    width: 100%;
+    user-drag: none;
+    user-select: none;
+    pointer-events: none;
   }
 </style>
 </head>
@@ -39,28 +49,72 @@
 <body>
 
 <div class="controls">
-  <label><input type="checkbox" checked onclick="toggle('base')"> Map</label>
+  <label><input type="checkbox" checked onclick="toggle('base')"> Map</label><br>
   <label><input type="checkbox" checked onclick="toggle('terrain')"> Terrain</label><br>
   <label><input type="checkbox" checked onclick="toggle('provinces')"> Provinces</label><br>
   <label><input type="checkbox" checked onclick="toggle('rivers')"> Rivers</label><br>
   <label><input type="checkbox" checked onclick="toggle('cities')"> Cities</label><br>
   <label><input type="checkbox" checked onclick="toggle('country_names')"> Faction Names</label><br>
-  <label><input type="checkbox" checked onclick="toggle('region_names')"> Region Names</label>
-  <label><input type="checkbox" checked onclick="toggle('terrain_name')"> Terrain Name</label>
+  <label><input type="checkbox" checked onclick="toggle('region_names')"> Region Names</label><br>
+  <label><input type="checkbox" checked onclick="toggle('terrain_names')"> Terrain Names</label>
 </div>
 
-<div class="map">
-  <img src="layers/base.png" id="base">
-  <img src="layers/terrain.png" id="terrain">
-  <img src="layers/provinces.png" id="provinces">
-  <img src="layers/rivers.png" id="rivers">
-  <img src="layers/cities.png" id="cities">
-  <img src="layers/country_names.png" id="country_names">
-  <img src="layers/region_names.png" id="region_names">
-  <img src="layers/terrain_name.png" id="terrain_names">
+<div class="viewport" id="viewport">
+  <div class="map" id="map">
+    <img src="layers/base.png" id="base">
+    <img src="layers/terrain.png" id="terrain">
+    <img src="layers/provinces.png" id="provinces">
+    <img src="layers/rivers.png" id="rivers">
+    <img src="layers/cities.png" id="cities">
+    <img src="layers/country_names.png" id="country_names">
+    <img src="layers/region_names.png" id="region_names">
+    <img src="layers/terrain_name.png" id="terrain_names">
+  </div>
 </div>
 
 <script>
+let scale = 1;
+let posX = 0;
+let posY = 0;
+let isDragging = false;
+let startX, startY;
+
+const map = document.getElementById("map");
+const viewport = document.getElementById("viewport");
+
+function updateTransform() {
+  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
+
+viewport.addEventListener("wheel", e => {
+  e.preventDefault();
+
+  const zoomSpeed = 0.1;
+  const delta = e.deltaY < 0 ? 1 + zoomSpeed : 1 - zoomSpeed;
+  scale = Math.min(Math.max(scale * delta, 0.3), 4);
+
+  updateTransform();
+});
+
+viewport.addEventListener("mousedown", e => {
+  isDragging = true;
+  startX = e.clientX - posX;
+  startY = e.clientY - posY;
+  viewport.style.cursor = "grabbing";
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  viewport.style.cursor = "grab";
+});
+
+window.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  posX = e.clientX - startX;
+  posY = e.clientY - startY;
+  updateTransform();
+});
+
 function toggle(id) {
   const layer = document.getElementById(id);
   layer.style.display = layer.style.display === "none" ? "block" : "none";
@@ -69,8 +123,3 @@ function toggle(id) {
 
 </body>
 </html>
-
-
-
-
-
