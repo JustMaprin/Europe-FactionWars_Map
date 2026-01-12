@@ -1,14 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Faction Wars Map</title>
+<title>Europe Faction Wars Map</title>
+
 <style>
-  body { margin: 0; background: #111; }
-  img { width: 100%; }
+  body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: sans-serif;
+  }
+
+  .controls {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 10;
+  }
+
+  .map {
+    position: relative;
+    width: 100%;
+  }
+
+  .map img {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
 </style>
 </head>
+
 <body>
-  <img src="layers/base.png">
+
+<div class="controls">
+  <label><input type="checkbox" checked onclick="toggle('terrain')"> Terrain</label><br>
+  <label><input type="checkbox" checked onclick="toggle('provinces')"> Provinces</label><br>
+  <label><input type="checkbox" checked onclick="toggle('rivers')"> Rivers</label><br>
+  <label><input type="checkbox" checked onclick="toggle('cities')"> Cities</label><br>
+  <label><input type="checkbox" checked onclick="toggle('country_names')"> Faction Names</label><br>
+  <label><input type="checkbox" checked onclick="toggle('region_names')"> Region Names</label>
+  <label><input type="checkbox" checked onclick="toggle('terrain_name')"> Terrain Name</label>
+</div>
+
+<div class="map">
+  <img src="layers/terrain.png" id="terrain">
+  <img src="layers/provinces.png" id="provinces">
+  <img src="layers/rivers.png" id="rivers">
+  <img src="layers/cities.png" id="cities">
+  <img src="layers/country_names.png" id="country_names">
+  <img src="layers/region_names.png" id="region_names">
+  <img src="layers/terrain_name.png" id="terrain_names">
+</div>
+
+<script>
+function toggle(id) {
+  const layer = document.getElementById(id);
+  layer.style.display = layer.style.display === "none" ? "block" : "none";
+}
+</script>
+
 </body>
 </html>
