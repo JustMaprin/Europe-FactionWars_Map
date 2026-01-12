@@ -75,42 +75,53 @@ const viewport = document.getElementById("viewport");
 
 let scale = 1;
 let minScale = 1;
-let maxScale = 3;
+let maxScale = 4;
 let x = 0, y = 0;
 let isDragging = false;
 let startX, startY;
+
+// центрирование и расчет minScale
+const baseImg = document.getElementById("base");
+baseImg.onload = () => {
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  const iw = baseImg.naturalWidth;
+  const ih = baseImg.naturalHeight;
+
+  minScale = Math.min(vw / iw, vh / ih);
+  scale = minScale;
+
+  x = (vw - iw * scale) / 2;
+  y = (vh - ih * scale) / 2;
+
+  updateTransform();
+};
 
 function updateTransform() {
   map.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
 }
 
-function centerMap() {
-  const img = map.querySelector("img");
-  img.onload = () => {
-    const vw = viewport.clientWidth;
-    const vh = viewport.clientHeight;
-    const iw = img.naturalWidth;
-    const ih = img.naturalHeight;
-
-    minScale = Math.min(vw / iw, vh / ih);
-    scale = minScale;
-
-    x = (vw - iw * scale) / 2;
-    y = (vh - ih * scale) / 2;
-
-    updateTransform();
-  };
-}
-
-centerMap();
-
+// зум от курсора (как Google Maps)
 viewport.addEventListener("wheel", e => {
   e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  scale = Math.min(maxScale, Math.max(minScale, scale + delta));
+
+  const rect = viewport.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const oldScale = scale;
+  const zoom = e.deltaY < 0 ? 1.1 : 0.9;
+  scale = Math.min(maxScale, Math.max(minScale, scale * zoom));
+
+  const scaleFactor = scale / oldScale;
+
+  x = mouseX - (mouseX - x) * scaleFactor;
+  y = mouseY - (mouseY - y) * scaleFactor;
+
   updateTransform();
 }, { passive: false });
 
+// перетаскивание
 viewport.addEventListener("mousedown", e => {
   isDragging = true;
   startX = e.clientX - x;
@@ -130,6 +141,7 @@ window.addEventListener("mousemove", e => {
   updateTransform();
 });
 
+// слои
 function toggle(id) {
   const layer = document.getElementById(id);
   layer.style.display = layer.style.display === "none" ? "block" : "none";
@@ -138,3 +150,4 @@ function toggle(id) {
 
 </body>
 </html>
+
