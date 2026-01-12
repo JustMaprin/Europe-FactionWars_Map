@@ -9,14 +9,13 @@
     margin: 0;
     background: #111;
     font-family: georgia;
-    overflow: hidden;
   }
 
   .controls {
     position: fixed;
     top: 10px;
     left: 10px;
-    background: rgba(204, 180, 102, 0.9);
+    background: rgba(204, 180, 102, 0.85);
     padding: 10px;
     border-radius: 8px;
     z-index: 10;
@@ -30,17 +29,17 @@
   }
 
   .map {
-  position: absolute;
-  width: 6194px;   
-  height: 4391px;  
-  transform-origin: 0 0;
-}
-
+    position: absolute;
+    transform-origin: center center;
+  }
 
   .map img {
-  position: absolute;
-  width: 100%;
-
+    position: absolute;
+    top: 0;
+    left: 0;
+    user-select: none;
+    pointer-events: none;
+  }
 </style>
 </head>
 
@@ -54,7 +53,7 @@
   <label><input type="checkbox" checked onclick="toggle('cities')"> Cities</label><br>
   <label><input type="checkbox" checked onclick="toggle('country_names')"> Faction Names</label><br>
   <label><input type="checkbox" checked onclick="toggle('region_names')"> Region Names</label><br>
-  <label><input type="checkbox" checked onclick="toggle('terrain_names')"> Terrain Names</label>
+  <label><input type="checkbox" checked onclick="toggle('terrain_names')"> Terrain Name</label>
 </div>
 
 <div class="viewport" id="viewport">
@@ -71,33 +70,51 @@
 </div>
 
 <script>
-let scale = 1;
-let posX = 0;
-let posY = 0;
-let isDragging = false;
-let startX, startY;
-
 const map = document.getElementById("map");
 const viewport = document.getElementById("viewport");
 
+let scale = 1;
+let minScale = 1;
+let maxScale = 3;
+let x = 0, y = 0;
+let isDragging = false;
+let startX, startY;
+
 function updateTransform() {
-  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  map.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
 }
+
+function centerMap() {
+  const img = map.querySelector("img");
+  img.onload = () => {
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    minScale = Math.min(vw / iw, vh / ih);
+    scale = minScale;
+
+    x = (vw - iw * scale) / 2;
+    y = (vh - ih * scale) / 2;
+
+    updateTransform();
+  };
+}
+
+centerMap();
 
 viewport.addEventListener("wheel", e => {
   e.preventDefault();
-
-  const zoomSpeed = 0.1;
-  const delta = e.deltaY < 0 ? 1 + zoomSpeed : 1 - zoomSpeed;
-  scale = Math.min(Math.max(scale * delta, 0.3), 4);
-
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  scale = Math.min(maxScale, Math.max(minScale, scale + delta));
   updateTransform();
-});
+}, { passive: false });
 
 viewport.addEventListener("mousedown", e => {
   isDragging = true;
-  startX = e.clientX - posX;
-  startY = e.clientY - posY;
+  startX = e.clientX - x;
+  startY = e.clientY - y;
   viewport.style.cursor = "grabbing";
 });
 
@@ -108,8 +125,8 @@ window.addEventListener("mouseup", () => {
 
 window.addEventListener("mousemove", e => {
   if (!isDragging) return;
-  posX = e.clientX - startX;
-  posY = e.clientY - startY;
+  x = e.clientX - startX;
+  y = e.clientY - startY;
   updateTransform();
 });
 
@@ -121,5 +138,3 @@ function toggle(id) {
 
 </body>
 </html>
-
-
