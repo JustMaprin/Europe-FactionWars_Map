@@ -39,6 +39,7 @@
 <body>
 
 <div class="controls">
+  <label><input type="checkbox" checked onclick="toggle('base')"> Map</label>
   <label><input type="checkbox" checked onclick="toggle('terrain')"> Terrain</label><br>
   <label><input type="checkbox" checked onclick="toggle('provinces')"> Provinces</label><br>
   <label><input type="checkbox" checked onclick="toggle('rivers')"> Rivers</label><br>
@@ -49,6 +50,7 @@
 </div>
 
 <div class="map">
+  <img src="layers/base.png" id="base">
   <img src="layers/terrain.png" id="terrain">
   <img src="layers/provinces.png" id="provinces">
   <img src="layers/rivers.png" id="rivers">
@@ -67,3 +69,4 @@ function toggle(id) {
 
 </body>
 </html>
+
