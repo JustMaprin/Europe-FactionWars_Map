@@ -92,8 +92,9 @@ let x = 0, y = 0;
 let isDragging = false;
 let startX, startY;
 
-const baseImg = () => document.getElementById("base");
-baseImg().onload = () => {
+const baseImg = document.getElementById("base");
+
+baseImg.onload = () => {
   const vw = viewport.clientWidth;
   const vh = viewport.clientHeight;
   const iw = baseImg.naturalWidth;
@@ -107,6 +108,11 @@ baseImg().onload = () => {
 
   updateTransform();
 };
+
+if (baseImg.complete) {
+  baseImg.onload();
+}
+
 
 function updateTransform() {
   map.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
@@ -159,5 +165,6 @@ function toggle(id) {
 
 </body>
 </html>
+
 
 
