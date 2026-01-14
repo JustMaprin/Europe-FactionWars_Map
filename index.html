@@ -57,21 +57,33 @@
 </div>
 
 <div class="viewport" id="viewport">
-  <div class="map" id="map">
-    <img src="layers/base.png" id="base">
-    <img src="layers/terrain.png" id="terrain">
-    <img src="layers/provinces.png" id="provinces">
-    <img src="layers/rivers.png" id="rivers">
-    <img src="layers/cities.png" id="cities">
-    <img src="layers/country_names.png" id="country_names">
-    <img src="layers/region_names.png" id="region_names">
-    <img src="layers/terrain_name.png" id="terrain_names">
-  </div>
-</div>
+  <div class="map" id="map"></div>
+  
 
 <script>
 const map = document.getElementById("map");
 const viewport = document.getElementById("viewport");
+
+const MAP_VERSION = "v1"; // change
+
+const layers = [
+  "base",
+  "terrain",
+  "provinces",
+  "rivers",
+  "cities",
+  "country_names",
+  "region_names",
+  "terrain_name"
+];
+
+layers.forEach(name => {
+  const img = document.createElement("img");
+  img.src = `layers/${MAP_VERSION}/${name}.png`;
+  img.id = name;
+  map.appendChild(img);
+});
+
 
 let scale = 1;
 let minScale = 1;
@@ -80,9 +92,8 @@ let x = 0, y = 0;
 let isDragging = false;
 let startX, startY;
 
-// центрирование и расчет minScale
-const baseImg = document.getElementById("base");
-baseImg.onload = () => {
+const baseImg = () => document.getElementById("base");
+baseImg().onload = () => {
   const vw = viewport.clientWidth;
   const vh = viewport.clientHeight;
   const iw = baseImg.naturalWidth;
@@ -101,7 +112,6 @@ function updateTransform() {
   map.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
 }
 
-// зум от курсора (как Google Maps)
 viewport.addEventListener("wheel", e => {
   e.preventDefault();
 
@@ -141,7 +151,6 @@ window.addEventListener("mousemove", e => {
   updateTransform();
 });
 
-// слои
 function toggle(id) {
   const layer = document.getElementById(id);
   layer.style.display = layer.style.display === "none" ? "block" : "none";
@@ -150,4 +159,5 @@ function toggle(id) {
 
 </body>
 </html>
+
 
